@@ -16,3 +16,5 @@ Test set is taken as 20% of last observation due to series data
 - GradientBoostingRegressor() R2:  0.8587898632890966 MAE:  46.7984731089591
 - ADD_rushhour_feature DecisionTreeRegressor() R2:  0.8928538705854316 MAE:  34.70798898071625
 
+**Comment**
+Any manual feautre like rushhour will not substantially increase the performance of the model. The rushhour feature is interaction feature. Multiple interactions is the strength of decision-based models.
