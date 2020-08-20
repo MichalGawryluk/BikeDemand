@@ -52,6 +52,16 @@ def fe_ohe_categories(df, list_cat_vars):
     return df, ohe_regresors
 
 
+def fe_manual_rushhours(df):
+    cond1 = df.hour >= 7
+    cond2 = df.hour <= 10
+    cond3 = df.hour >= 15
+    cond4 = df.hour <= 18
+
+    rushhour = np.where( (cond1 & cond2) | (cond3 & cond4),1,0)
+    df["rushhour"] = rushhour
+
+
 def split_train_test(split_par, df):
     split_id = round(len(df) * split_par)
     train = df.loc[:split_id, :]
@@ -103,13 +113,15 @@ if __name__ == '__main__':
 
     fe_datetime(train)
     train, ohe_regs = fe_ohe_categories(train, ["season", "weather"])
+    fe_manual_rushhours(train)
 
     train, test = train_test_split(train, test_size=0.2)
     print(np.unique(train.season))
 
     simple_regresors = ["workingday", "holiday", "temp", "atemp", "humidity", "windspeed"]
     time_regrosors = ["hour", "day", "week", "weekday", "month", "year"]
-    regresors = simple_regresors + time_regrosors + ohe_regs
+    manual_regs = ["rushhour"]
+    regresors = simple_regresors + time_regrosors + ohe_regs + manual_regs
     target = ["count"]
 
     X = train[regresors]
@@ -124,6 +136,6 @@ if __name__ == '__main__':
     evaluate(dtr, X_test, y_test)
     evaluate(xgb, X_test, y_test)
 
-    #print(train.loc[train.hour > 8,:])
+    print(fe_manual_rushhours(train))
 
     # print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
