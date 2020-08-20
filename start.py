@@ -6,6 +6,8 @@ import datetime
 # plt.switch_backend('Qt4Agg')
 
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import r2_score, mean_absolute_error
 from sklearn.model_selection import train_test_split
 
@@ -63,6 +65,18 @@ def benchmark_model(xors, ys):
     return lm
 
 
+def dt_model(xors, ys):
+    dr = DecisionTreeRegressor()
+    dr.fit(xors, ys)
+    return dr
+
+
+def xgboost_model(xors, ys):
+    xgb = GradientBoostingRegressor()
+    xgb.fit(xors, ys.values.ravel())
+    return xgb
+
+
 def evaluate(model, testset, ys):
     preds = model.predict(testset)
     r2 = r2_score(ys, preds)
@@ -104,6 +118,12 @@ if __name__ == '__main__':
     y_test = test[target]
 
     bm = benchmark_model(X, y)
+    dtr = dt_model(X, y)
+    xgb = xgboost_model(X, y)
     evaluate(bm, X_test, y_test)
+    evaluate(dtr, X_test, y_test)
+    evaluate(xgb, X_test, y_test)
+
+    #print(train.loc[train.hour > 8,:])
 
     # print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
