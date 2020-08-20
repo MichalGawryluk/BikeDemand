@@ -14,3 +14,5 @@ Test set is taken as 20% of last observation due to series data
 - ADD_ohe_features LinearRegression() R2:  0.40108421460875343 MAE:  105.05410937621441
 - DecisionTreeRegressor() R2:  0.8895141986830241 MAE:  34.882920110192835
 - GradientBoostingRegressor() R2:  0.8587898632890966 MAE:  46.7984731089591
+- ADD_rushhour_feature DecisionTreeRegressor() R2:  0.8928538705854316 MAE:  34.70798898071625
+
