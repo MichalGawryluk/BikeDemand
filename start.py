@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 # import matplotlib.pyplot as plt
 # plt.switch_backend('Qt4Agg')
@@ -28,6 +29,15 @@ def data_simple_eda(data):
 
 def pre_processing_train(trainset):
     trainset.datetime = pd.to_datetime(trainset.datetime)
+
+
+def fe_datetime(df):
+    df["hour"] = train.datetime.dt.hour
+    df["day"] = train.datetime.dt.day
+    df["week"] = train.datetime.dt.week
+    df["weekday"] = train.datetime.dt.weekday
+    df["month"] = train.datetime.dt.month
+    df["year"] = train.datetime.dt.year
 
 
 def split_train_test(split_par, df):
@@ -64,9 +74,13 @@ if __name__ == '__main__':
 
     pre_processing_train(train)
 
+    fe_datetime(train)
+
     train, test = split_train_test(0.2, train)
 
-    regresors = ["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]
+    simple_regresors = ["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]
+    time_regrosors = ["hour", "day", "week", "weekday", "month", "year"]
+    regresors = simple_regresors + time_regrosors
     target = ["count"]
 
     X = train[regresors]
@@ -78,3 +92,4 @@ if __name__ == '__main__':
     evaluate(bm, X_test, y_test)
 
     # print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
+
