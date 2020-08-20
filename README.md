@@ -8,4 +8,5 @@ Test set is taken as 20% of last observation due to series data
 
 ### Log of Analytical Performance
 
-LinearRegression() R2:  0.1084245004064398 MAE:  132.9918705935313
+- LinearRegression() R2:  0.1084245004064398 MAE:  132.9918705935313
+- LinearRegression() R2:  0.16861714744970657 MAE:  125.82931853905438
