@@ -41,6 +41,15 @@ def fe_datetime(df):
     df["year"] = train.datetime.dt.year
 
 
+def fe_ohe_categories(df, list_cat_vars):
+    ohe_regresors = []
+    for cv in list_cat_vars:
+        ohe = pd.get_dummies(df[cv], prefix=cv)
+        ohe_regresors += ohe.columns.values.tolist()
+        df = pd.concat([df, ohe], axis=1)
+    return df, ohe_regresors
+
+
 def split_train_test(split_par, df):
     split_id = round(len(df) * split_par)
     train = df.loc[:split_id, :]
@@ -79,13 +88,14 @@ if __name__ == '__main__':
     pre_processing_train(train)
 
     fe_datetime(train)
+    train, ohe_regs = fe_ohe_categories(train, ["season", "weather"])
 
     train, test = train_test_split(train, test_size=0.2)
     print(np.unique(train.season))
 
-    simple_regresors = ["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]
+    simple_regresors = ["workingday", "holiday", "temp", "atemp", "humidity", "windspeed"]
     time_regrosors = ["hour", "day", "week", "weekday", "month", "year"]
-    regresors = simple_regresors + time_regrosors
+    regresors = simple_regresors + time_regrosors + ohe_regs
     target = ["count"]
 
     X = train[regresors]
