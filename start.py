@@ -7,6 +7,7 @@ import datetime
 
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.model_selection import train_test_split
 
 desired_width: int = 320
 pd.set_option('display.width', desired_width)
@@ -61,9 +62,12 @@ def evaluate(model, testset, ys):
 
 
 if __name__ == '__main__':
+    np.random.seed(1992)
+
     train = data_load('./bike-sharing-demand/train.csv')
     train.name = 'TRAIN'
     print(train)
+    print(np.unique(train.season))
 
     test = data_load('./bike-sharing-demand/test.csv')
     test.name = 'TEST'
@@ -76,7 +80,8 @@ if __name__ == '__main__':
 
     fe_datetime(train)
 
-    train, test = split_train_test(0.2, train)
+    train, test = train_test_split(train, test_size=0.2)
+    print(np.unique(train.season))
 
     simple_regresors = ["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]
     time_regrosors = ["hour", "day", "week", "weekday", "month", "year"]
@@ -92,4 +97,3 @@ if __name__ == '__main__':
     evaluate(bm, X_test, y_test)
 
     # print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
-
