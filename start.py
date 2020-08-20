@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
-#plt.switch_backend('Qt4Agg')
+
+# import matplotlib.pyplot as plt
+# plt.switch_backend('Qt4Agg')
 
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_absolute_error
 
-desired_width=320
+desired_width: int = 320
 pd.set_option('display.width', desired_width)
-#np.set_printoption(linewidth=desired_width)
+# np.set_printoption(linewidth=desired_width)
 pd.set_option('display.max_columns', 15)
 
 
@@ -17,40 +18,63 @@ def data_load(path):
     return data
 
 
+def data_simple_eda(data):
+    print("######## EDA ##", data.name)
+
+    print(data.isna().sum())
+    print(data.dtypes)
+    print(data.describe())
+
+
+def pre_processing_train(trainset):
+    trainset.datetime = pd.to_datetime(trainset.datetime)
+
+
+def split_train_test(split_par, df):
+    split_id = round(len(df) * split_par)
+    train = df.loc[:split_id, :]
+    test = df.loc[split_id + 1:, :]
+    return train, test
+
+
+def benchmark_model(xors, ys):
+    lm = LinearRegression()
+    lm.fit(xors, ys)
+    return lm
+
+
+def evaluate(model, testset, ys):
+    preds = model.predict(testset)
+    r2 = r2_score(ys, preds)
+    mae = mean_absolute_error(ys, preds)
+    return print(model, "R2: ", r2, "MAE: ", mae)
+
+
 if __name__ == '__main__':
     train = data_load('./bike-sharing-demand/train.csv')
+    train.name = 'TRAIN'
     print(train)
 
     test = data_load('./bike-sharing-demand/test.csv')
+    test.name = 'TEST'
     print(test)
 
-    print(train.isna().sum())
-    print(train.dtypes)
+    data_simple_eda(train)
+    data_simple_eda(test)
 
-    print(test.isna().sum())
-    print(test.dtypes)
+    pre_processing_train(train)
 
-    print(train.describe())
-    print(test.describe())
+    train, test = split_train_test(0.2, train)
 
-    #plt.hist(train.workingday)
+    regresors = ["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]
+    target = ["count"]
 
-    print(train.datetime)
-    print(train.casual)
+    X = train[regresors]
+    y = train[target]
+    X_test = test[regresors]
+    y_test = test[target]
 
-    print(train.casual[0] + train.registered[0], train['count'][0])
+    bm = benchmark_model(X, y)
+    evaluate(bm, X_test, y_test)
 
-    print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
-
-    lm = LinearRegression()
-
-    X = train[["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]]
-    y = train["count"]
-
-    lm.fit(X, y)
-
-    preds = lm.predict(X)
-    print(r2_score(y, preds))
-    print(mean_absolute_error(y, preds))
-
-
+    # print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
