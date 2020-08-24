@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
-
-# import matplotlib.pyplot as plt
-# plt.switch_backend('Qt4Agg')
+import pickle
 
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.model_selection import train_test_split
 
 desired_width: int = 320
 pd.set_option('display.width', desired_width)
-# np.set_printoption(linewidth=desired_width)
 pd.set_option('display.max_columns', 15)
 
 
@@ -30,6 +30,43 @@ def pre_processing_train(trainset):
     trainset.datetime = pd.to_datetime(trainset.datetime)
 
 
+def fe_datetime(df):
+    if isinstance(df, pd.DataFrame):
+        df["hour"] = df.datetime.dt.hour
+        df["day"] = df.datetime.dt.day
+        df["week"] = df.datetime.dt.week
+        df["weekday"] = df.datetime.dt.weekday
+        df["month"] = df.datetime.dt.month
+        df["year"] = df.datetime.dt.year
+    else:
+        df["hour"] = df.datetime.hour
+        df["day"] = df.datetime.day
+        df["week"] = df.datetime.week
+        df["weekday"] = df.datetime.weekday
+        df["month"] = df.datetime.month
+        df["year"] = df.datetime.year
+
+
+def fe_ohe_categories(df, list_cat_vars):
+    ohe_regresors = []
+    for cv in list_cat_vars:
+        ohe = pd.get_dummies(df[cv], prefix=cv)
+        ohe_regresors += ohe.columns.values.tolist()
+        df = pd.concat([df, ohe], axis=1)
+
+    return df, ohe_regresors
+
+
+def fe_manual_rushhours(df):
+    cond1 = df.hour >= 7
+    cond2 = df.hour <= 10
+    cond3 = df.hour >= 15
+    cond4 = df.hour <= 18
+
+    rushhour = np.where( (cond1 & cond2) | (cond3 & cond4),1,0)
+    df["rushhour"] = rushhour
+
+
 def split_train_test(split_par, df):
     split_id = round(len(df) * split_par)
     train = df.loc[:split_id, :]
@@ -40,7 +77,25 @@ def split_train_test(split_par, df):
 def benchmark_model(xors, ys):
     lm = LinearRegression()
     lm.fit(xors, ys)
+    with open('lm.pkl', 'wb') as f:
+        pickle.dump(lm, f)
     return lm
+
+
+def dt_model(xors, ys):
+    dr = DecisionTreeRegressor()
+    dr.fit(xors, ys)
+    with open('dr.pkl', 'wb') as f:
+        pickle.dump(dr, f)
+    return dr
+
+
+def xgboost_model(xors, ys):
+    xgb = GradientBoostingRegressor()
+    xgb.fit(xors, ys.values.ravel())
+    with open('xgb.pkl', 'wb') as f:
+        pickle.dump(xgb, f)
+    return xgb
 
 
 def evaluate(model, testset, ys):
@@ -51,9 +106,12 @@ def evaluate(model, testset, ys):
 
 
 if __name__ == '__main__':
+    np.random.seed(1992)
+
     train = data_load('./bike-sharing-demand/train.csv')
     train.name = 'TRAIN'
     print(train)
+    print(np.unique(train.season))
 
     test = data_load('./bike-sharing-demand/test.csv')
     test.name = 'TEST'
@@ -64,9 +122,20 @@ if __name__ == '__main__':
 
     pre_processing_train(train)
 
-    train, test = split_train_test(0.2, train)
+    fe_datetime(train)
+    train, ohe_regs = fe_ohe_categories(train, ["season", "weather"])
+    fe_manual_rushhours(train)
 
-    regresors = ["season", "workingday", "holiday", "weather", "temp", "atemp", "humidity", "windspeed"]
+    with open('ohe_regs.pkl', 'wb') as f:
+        pickle.dump(ohe_regs, f)
+
+    train, test = train_test_split(train, test_size=0.2)
+    print(np.unique(train.season))
+
+    simple_regresors = ["workingday", "holiday", "temp", "atemp", "humidity", "windspeed"]
+    time_regrosors = ["hour", "day", "week", "weekday", "month", "year"]
+    manual_regs = ["rushhour"]
+    regresors = simple_regresors + time_regrosors + ohe_regs + manual_regs
     target = ["count"]
 
     X = train[regresors]
@@ -75,6 +144,8 @@ if __name__ == '__main__':
     y_test = test[target]
 
     bm = benchmark_model(X, y)
+    dtr = dt_model(X, y)
+    xgb = xgboost_model(X, y)
     evaluate(bm, X_test, y_test)
-
-    # print(pd.to_datetime(train.datetime) - pd.DateOffset(day=1))
+    evaluate(dtr, X_test, y_test)
+    evaluate(xgb, X_test, y_test)
