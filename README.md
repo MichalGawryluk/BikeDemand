@@ -24,8 +24,9 @@ Any manual feautre like rushhour will not substantially increase the performance
 0. Pull the repository on your local machine
 1. Download the data from https://www.kaggle.com/c/bike-sharing-demand/data
 2. Unzip to 'bike-sharing-demand' and put as subfolder to repository
-3. Run python start.py to train the model
-4. Follow the attached steps to fully run and test the solution.
+3. Install requirements pip install -r requirements.txt 
+4. Run python start.py to train the model
+5. Follow the attached steps to fully run and test the solution.
 
 ### Run Unittests
 
