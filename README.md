@@ -28,6 +28,8 @@ Any manual feautre like rushhour will not substantially increase the performance
 4. Run python start.py to train the model
 5. Follow the attached steps to fully run and test the solution.
 
+**Recommended software** Pycharm
+
 ### Run Unittests
 
 Both single point and multi data points.
