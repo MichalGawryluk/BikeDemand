@@ -3,7 +3,7 @@
 ### Assumptions
 
 Orginal test is ignored, due to lack of target value.
-Test set is taken as 20% of original set randomly.
+Test set is taken as 20% of original train set, randomly.
 
 
 ### Log of Analytical Performance
@@ -19,16 +19,29 @@ Test set is taken as 20% of original set randomly.
 **Comment**
 Any manual feautre like rushhour will not substantially increase the performance of the model. The rushhour feature is interaction feature. Multiple interactions is the strength of decision-based models.
 
-### Run API requests
+### How to operate with the repository
 
-Both single point and multi data points.
-
-<pre><code>python ./app_test.py
-</code></pre>
+0. Pull the repository on your local machine
+1. Download the data from https://www.kaggle.com/c/bike-sharing-demand/data
+2. 
 
 ### Run Unittests
 
 Both single point and multi data points.
 
 <pre><code>pytest ./test.py
+</code></pre>
+
+### Run API
+
+Run app in main directory.
+
+<pre><code>python app2.py
+</code></pre>
+
+### Run API requests
+
+Both single point and multi data points.
+
+<pre><code>python ./app_test.py
 </code></pre>
