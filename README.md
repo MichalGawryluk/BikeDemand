@@ -18,3 +18,5 @@ Test set is taken as 20% of original set randomly.
 
 **Comment**
 Any manual feautre like rushhour will not substantially increase the performance of the model. The rushhour feature is interaction feature. Multiple interactions is the strength of decision-based models.
+
+' pip install
